@@ -566,6 +566,7 @@ const MSAL_CONFIG = {
   cache: { cacheLocation: "sessionStorage" }
 };
 const GRAPH_SCOPES = ["Files.ReadWrite", "User.Read"];
+const FLOW_SCOPES = ["https://service.flow.microsoft.com/.default"];
 const SHAREPOINT_DRIVE_ID = "b!f84HEQEieUeJxw5XjAFx4suxC9MGfwFDskqycQTLriaihMD7r68TSpFeWK_Nzwco";
 const SHAREPOINT_FOLDER_PATH = "Compra 2027/Captura Compra";
 
@@ -631,12 +632,31 @@ async function ensureToken(){
   }
 }
 
+async function ensureFlowToken(){
+  if(!msalReady) throw new Error('Microsoft 365 no disponible en este navegador.');
+  if(!msalAccount){
+    const resp = await msalInstance.loginPopup({scopes: FLOW_SCOPES});
+    msalAccount = resp.account;
+    updateConnectionBadge();
+  }
+  try{
+    const resp = await msalInstance.acquireTokenSilent({scopes: FLOW_SCOPES, account: msalAccount});
+    return resp.accessToken;
+  }catch(e){
+    const resp = await msalInstance.acquireTokenPopup({scopes: FLOW_SCOPES, account: msalAccount});
+    msalAccount = resp.account;
+    updateConnectionBadge();
+    return resp.accessToken;
+  }
+}
+
 async function uploadToSharePoint(filename, arrayBuffer){
   if(!FLOW_SAVE_URL) throw new Error('El flujo de Power Automate para guardar aún no está configurado.');
+  const token = await ensureFlowToken();
   const contentBase64 = arrayBufferToBase64(arrayBuffer);
   const res = await fetch(FLOW_SAVE_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify({ filename, contentBase64 })
   });
   if(!res.ok){
@@ -648,7 +668,8 @@ async function uploadToSharePoint(filename, arrayBuffer){
 
 async function listSharePointFiles(){
   if(!FLOW_LIST_URL) throw new Error('El flujo de Power Automate para leer aún no está configurado.');
-  const res = await fetch(FLOW_LIST_URL);
+  const token = await ensureFlowToken();
+  const res = await fetch(FLOW_LIST_URL, { headers: { 'Authorization': `Bearer ${token}` } });
   if(!res.ok) throw new Error(`No se pudo leer la carpeta de SharePoint (${res.status})`);
   const data = await res.json();
   return Array.isArray(data) ? data : (data.value || []);
