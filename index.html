@@ -400,6 +400,17 @@
   <button class="btn-export" id="exportBtn">Descargar captura (CSV)</button>
 </header>
 
+<div class="import-overlay" id="channelConfirmOverlay">
+  <div class="import-card confirm-card">
+    <h2>Confirma tu canal</h2>
+    <p id="channelConfirmText"></p>
+    <div class="confirm-actions">
+      <button class="confirm-cancel-btn" id="channelConfirmNoBtn">No, elegir otro</button>
+      <button class="confirm-final-btn" id="channelConfirmYesBtn">Sí, es correcto</button>
+    </div>
+  </div>
+</div>
+
 <div class="import-overlay" id="confirmOverlay">
   <div class="import-card confirm-card">
     <h2>Finalizar mi captura</h2>
@@ -558,6 +569,28 @@ const GRAPH_SCOPES = ["Files.ReadWrite", "User.Read"];
 const SHAREPOINT_DRIVE_ID = "b!f84HEQEieUeJxw5XjAFx4suxC9MGfwFDskqycQTLriaihMD7r68TSpFeWK_Nzwco";
 const SHAREPOINT_FOLDER_PATH = "Compra 2027/Captura Compra";
 
+// Power Automate flow URLs (each flow's own "HTTP trigger" URL acts as its secret key).
+// Alejandro builds these once in Power Automate; until then they're empty and Guardar/Finalizar
+// fall back to a local download automatically - nothing breaks in the meantime.
+const FLOW_SAVE_URL = "https://defaulta6d59cf9013d4ffa81460e5ee3a2d3.0b.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/29/workflows/ea8f110a230e434388c5117533902ed0/triggers/manual/paths/invoke?api-version=1";
+const FLOW_LIST_URL = "";
+
+function arrayBufferToBase64(buf){
+  let binary = '';
+  const bytes = new Uint8Array(buf);
+  const chunk = 0x8000;
+  for(let i=0; i<bytes.byteLength; i+=chunk){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  }
+  return btoa(binary);
+}
+function base64ToArrayBuffer(b64){
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
 let msalInstance = null;
 let msalAccount = null;
 let msalReady = false;
@@ -598,37 +631,27 @@ async function ensureToken(){
   }
 }
 
-function graphPath(filename){
-  const segments = SHAREPOINT_FOLDER_PATH.split('/').map(encodeURIComponent);
-  if(filename) segments.push(encodeURIComponent(filename));
-  return segments.join('/');
-}
-
 async function uploadToSharePoint(filename, arrayBuffer){
-  const token = await ensureToken();
-  const url = `https://graph.microsoft.com/v1.0/drives/${SHAREPOINT_DRIVE_ID}/root:/${graphPath(filename)}:/content`;
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    },
-    body: arrayBuffer
+  if(!FLOW_SAVE_URL) throw new Error('El flujo de Power Automate para guardar aún no está configurado.');
+  const contentBase64 = arrayBufferToBase64(arrayBuffer);
+  const res = await fetch(FLOW_SAVE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename, contentBase64 })
   });
   if(!res.ok){
     const text = await res.text().catch(()=> '');
     throw new Error(`No se pudo subir a SharePoint (${res.status}): ${text}`);
   }
-  return await res.json();
+  return res.status === 204 ? {} : await res.json().catch(()=> ({}));
 }
 
 async function listSharePointFiles(){
-  const token = await ensureToken();
-  const url = `https://graph.microsoft.com/v1.0/drives/${SHAREPOINT_DRIVE_ID}/root:/${graphPath()}:/children?$select=name,lastModifiedDateTime,@microsoft.graph.downloadUrl&$top=200`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if(!FLOW_LIST_URL) throw new Error('El flujo de Power Automate para leer aún no está configurado.');
+  const res = await fetch(FLOW_LIST_URL);
   if(!res.ok) throw new Error(`No se pudo leer la carpeta de SharePoint (${res.status})`);
   const data = await res.json();
-  return data.value || [];
+  return Array.isArray(data) ? data : (data.value || []);
 }
 
 function updateConnectionBadge(){
@@ -820,8 +843,7 @@ async function loadAdminAggregateFromSharePoint(){
       if(!entry) continue;
       if(entry.type === 'FINAL') confirmedAt = confirmedAt || entry.file.lastModifiedDateTime;
       try{
-        const resp = await fetch(entry.file['@microsoft.graph.downloadUrl']);
-        const buf = await resp.arrayBuffer();
+        const buf = base64ToArrayBuffer(entry.file.contentBase64);
         const wb = XLSX.read(buf, {type:'array'});
         const sheet = wb.Sheets[wb.SheetNames[0]];
         const aoa = XLSX.utils.sheet_to_json(sheet, {header:1});
@@ -1022,13 +1044,35 @@ function showGate(){
     `<button class="gate-opt" data-code="${c.code}"><span>${c.label}</span><span class="code">${c.code}</span></button>`
   ).join('');
   list.querySelectorAll('.gate-opt').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      state.choice = CHOICES.find(c=>c.code===btn.dataset.code);
-      state.scopeIndex = 0;
-      await saveMyChoice();
-      await enterCapture();
+    btn.addEventListener('click', ()=>{
+      const choice = CHOICES.find(c=>c.code===btn.dataset.code);
+      showChannelConfirm(choice);
     });
   });
+}
+
+function showChannelConfirm(choice){
+  document.getElementById('channelConfirmText').textContent =
+    `Vas a capturar como: "${choice.label}". Si no eres tú, dale a "No, elegir otro" y busca tu canal correcto en la lista.`;
+  document.getElementById('channelConfirmOverlay').classList.add('show');
+  const yesBtn = document.getElementById('channelConfirmYesBtn');
+  const noBtn = document.getElementById('channelConfirmNoBtn');
+  const onYes = async ()=>{
+    document.getElementById('channelConfirmOverlay').classList.remove('show');
+    yesBtn.removeEventListener('click', onYes);
+    noBtn.removeEventListener('click', onNo);
+    state.choice = choice;
+    state.scopeIndex = 0;
+    await saveMyChoice();
+    await enterCapture();
+  };
+  const onNo = ()=>{
+    document.getElementById('channelConfirmOverlay').classList.remove('show');
+    yesBtn.removeEventListener('click', onYes);
+    noBtn.removeEventListener('click', onNo);
+  };
+  yesBtn.addEventListener('click', onYes);
+  noBtn.addEventListener('click', onNo);
 }
 const ADMIN_PIN = "3512";
 document.getElementById('gateAdminBtn').addEventListener('click', ()=>{
