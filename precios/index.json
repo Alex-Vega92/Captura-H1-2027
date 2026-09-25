@@ -1,0 +1,29 @@
+{
+ "actualizado": "2026-09-25",
+ "archivos": [
+  {
+   "id": "PR_H12027_FTW",
+   "season": "H1-2027",
+   "type": "FTW",
+   "fecha": "05-jun-2026",
+   "file": "Lista_de_Precios_FW_H1-2027_05-06-2026-Approved.xlsx",
+   "src": "precios/PR_H12027_FTW.bin",
+   "salt": "JZlWCK6UShsTknOsvrcBNA==",
+   "iv": "s+/OwuVr1h9W/Q7S",
+   "iter": 250000,
+   "kb": 53
+  },
+  {
+   "id": "PR_H12027_JBB",
+   "season": "H1-2027",
+   "type": "JBB",
+   "fecha": "27-may-2026",
+   "file": "Lista_de_Precios_JIBB_H1-2027_27-05-2026-Approved.xlsx",
+   "src": "precios/PR_H12027_JBB.bin",
+   "salt": "fZr5O4saLnhqysr9IHPZKg==",
+   "iv": "yjzbYJfYZMAmhPL9",
+   "iter": 250000,
+   "kb": 1804
+  }
+ ]
+}
