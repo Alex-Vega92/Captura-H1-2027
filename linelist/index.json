@@ -132,6 +132,18 @@
    "cols": 148,
    "fotos": 492,
    "kb": 5341
+  },
+  {
+   "id": "LL_H12027_4V_JBB",
+   "season": "H1-2027 4V",
+   "type": "JBB",
+   "fecha": "25-sep-2026 (4ta ventana)",
+   "file": "H1_2027_LATAM_Personalization_Line_List_General___05_25_26__4_.xlsx",
+   "src": "linelist/LL_H12027_4V_JBB.json",
+   "rows": 559,
+   "cols": 38,
+   "fotos": 530,
+   "kb": 3943
   }
  ]
 }
