@@ -1,0 +1,125 @@
+{
+ "actualizado": "2026-09-25",
+ "archivos": [
+  {
+   "id": "LL_S12026_FTW",
+   "season": "S1-2026",
+   "type": "FTW",
+   "fecha": "29-may-2025",
+   "file": "S1_2026_LATAM_FTW_Line_List_5_29_25.xlsx",
+   "src": "linelist/LL_S12026_FTW.json",
+   "rows": 584,
+   "cols": 147,
+   "fotos": 510,
+   "kb": 2274
+  },
+  {
+   "id": "LL_S12026_JBB",
+   "season": "S1-2026",
+   "type": "JBB",
+   "fecha": "29-may-2025",
+   "file": "S1_2026_LATAM_Personalization_Line_List_5_29_25.xlsx",
+   "src": "linelist/LL_S12026_JBB.json",
+   "rows": 578,
+   "cols": 32,
+   "fotos": 540,
+   "kb": 1995
+  },
+  {
+   "id": "LL_S22026_FTW",
+   "season": "S2-2026",
+   "type": "FTW",
+   "fecha": "21-ago-2025",
+   "file": "S2_2026_LATAM_FTW_Line_List_for_8_21_2025_ML.xlsx",
+   "src": "linelist/LL_S22026_FTW.json",
+   "rows": 552,
+   "cols": 147,
+   "fotos": 465,
+   "kb": 2096
+  },
+  {
+   "id": "LL_S22026_JBB",
+   "season": "S2-2026",
+   "type": "JBB",
+   "fecha": "21-ago-2025",
+   "file": "S2_2026_LATAM_Personalization_Line_List_8_21_2025_ML.xlsx",
+   "src": "linelist/LL_S22026_JBB.json",
+   "rows": 588,
+   "cols": 43,
+   "fotos": 529,
+   "kb": 1969
+  },
+  {
+   "id": "LL_S32026_FTW",
+   "season": "S3-2026",
+   "type": "FTW",
+   "fecha": "20-nov-2025",
+   "file": "S3_2026_LATAM_FTW_Line_List_11_20_2025_General__19_.xlsx",
+   "src": "linelist/LL_S32026_FTW.json",
+   "rows": 576,
+   "cols": 147,
+   "fotos": 498,
+   "kb": 2242
+  },
+  {
+   "id": "LL_S32026_JBB",
+   "season": "S3-2026",
+   "type": "JBB",
+   "fecha": "17-nov-2025",
+   "file": "S3_2026_LATAM_Personalization_Line_List_11_17_2025_General__9_.xlsx",
+   "src": "linelist/LL_S32026_JBB.json",
+   "rows": 654,
+   "cols": 34,
+   "fotos": 609,
+   "kb": 2269
+  },
+  {
+   "id": "LL_S42026_FTW",
+   "season": "S4-2026",
+   "type": "FTW",
+   "fecha": "19-feb-2026",
+   "file": "S4_2026_LATAM_FTW_Line_List_2_19_2026_General__6_.xlsx",
+   "src": "linelist/LL_S42026_FTW.json",
+   "rows": 525,
+   "cols": 141,
+   "fotos": 472,
+   "kb": 2054
+  },
+  {
+   "id": "LL_S42026_JBB",
+   "season": "S4-2026",
+   "type": "JBB",
+   "fecha": "19-feb-2026",
+   "file": "S4_2026_LATAM_Personalization_Line_List_2_19_2026_General__4_.xlsx",
+   "src": "linelist/LL_S42026_JBB.json",
+   "rows": 638,
+   "cols": 32,
+   "fotos": 611,
+   "kb": 2306
+  },
+  {
+   "id": "LL_H12027_FTW",
+   "season": "H1-2027",
+   "type": "FTW",
+   "fecha": "25-may-2026",
+   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26.xlsx",
+   "src": "linelist/LL_H12027_FTW.json",
+   "rows": 648,
+   "cols": 146,
+   "fotos": 496,
+   "kb": 5310
+  },
+  {
+   "id": "LL_H12027_JBB",
+   "season": "H1-2027",
+   "type": "JBB",
+   "fecha": "25-may-2026",
+   "file": "H1_2027_LATAM_Personalization_Line_List_General___05_25_26.xlsx",
+   "src": "linelist/LL_H12027_JBB.json",
+   "rows": 560,
+   "cols": 36,
+   "fotos": 531,
+   "kb": 3935
+  }
+ ]
+}
