@@ -120,6 +120,18 @@
    "cols": 36,
    "fotos": 531,
    "kb": 3935
+  },
+  {
+   "id": "LL_H12027_4V_FTW",
+   "season": "H1-2027 4V",
+   "type": "FTW",
+   "fecha": "24-sep-2026 (4ta ventana)",
+   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26__6_.xlsx",
+   "src": "linelist/LL_H12027_4V_FTW.json",
+   "rows": 648,
+   "cols": 148,
+   "fotos": 492,
+   "kb": 5341
   }
  ]
 }
