@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-09-25",
+ "actualizado": "2026-10-21",
  "archivos": [
   {
    "id": "PF_H12027_4V_FTW",
@@ -18,6 +18,24 @@
    "file": "PreForm armado: Line List Personalization 4V + catálogos Elastic + Material Master",
    "src": "preform/PF_H12027_4V_JBB.json",
    "kb": 1851
+  },
+  {
+   "id": "PF_H12027_5V_FTW",
+   "season": "H1-2027 5V",
+   "type": "FTW",
+   "fecha": "20-Oct-2026",
+   "file": "PreForm armado: Line List 5V (20-oct) + catálogos Elastic 4V + Material Master",
+   "src": "preform/PF_H12027_5V_FTW.json",
+   "kb": 4436
+  },
+  {
+   "id": "PF_H12027_5V_JBB",
+   "season": "H1-2027 5V",
+   "type": "JBB",
+   "fecha": "20-Oct-2026",
+   "file": "PreForm armado: Line List Personalization 5V (20-oct) + catálogos Elastic 4V + Material Master",
+   "src": "preform/PF_H12027_5V_JBB.json",
+   "kb": 3156
   }
  ]
 }
