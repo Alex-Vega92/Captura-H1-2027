@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-21",
+ "actualizado": "2026-10-23",
  "archivos": [
   {
    "id": "PF_H12027_4V_FTW",
@@ -23,10 +23,10 @@
    "id": "PF_H12027_5V_FTW",
    "season": "H1-2027 5V",
    "type": "FTW",
-   "fecha": "20-Oct-2026",
-   "file": "PreForm armado: Line List 5V (20-oct) + catálogos Elastic 4V + Material Master",
+   "fecha": "21-Oct-2026",
+   "file": "PreForm armado: Line List 5V (21-oct, Spiderman T) + catálogos Elastic 4V + Material Master",
    "src": "preform/PF_H12027_5V_FTW.json",
-   "kb": 4498
+   "kb": 4504
   },
   {
    "id": "PF_H12027_5V_JBB",
