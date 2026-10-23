@@ -150,12 +150,12 @@
    "season": "H1-2027 5V",
    "type": "FTW",
    "fecha": "21-oct-2026 (5ta ventana · Spiderman T restaurado)",
-   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26__9_.xlsx",
+   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26__10_.xlsx",
    "src": "linelist/LL_H12027_5V_FTW.json",
    "rows": 661,
-   "cols": 150,
+   "cols": 151,
    "fotos": 514,
-   "kb": 5920
+   "kb": 5921
   },
   {
    "id": "LL_H12027_5V_JBB",
