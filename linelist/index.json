@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-21",
+ "actualizado": "2026-10-23",
  "archivos": [
   {
    "id": "LL_S12026_FTW",
@@ -149,13 +149,13 @@
    "id": "LL_H12027_5V_FTW",
    "season": "H1-2027 5V",
    "type": "FTW",
-   "fecha": "20-oct-2026 (5ta ventana)",
-   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26__8_.xlsx",
+   "fecha": "21-oct-2026 (5ta ventana · Spiderman T restaurado)",
+   "file": "H1_2027_LATAM_FTW-ACC_Line_List_General___05_25_26__9_.xlsx",
    "src": "linelist/LL_H12027_5V_FTW.json",
-   "rows": 660,
+   "rows": 661,
    "cols": 150,
    "fotos": 514,
-   "kb": 5918
+   "kb": 5920
   },
   {
    "id": "LL_H12027_5V_JBB",
