@@ -1025,6 +1025,7 @@
   .ar-sap td{padding:4px 8px;border-bottom:1px solid #EFEBE1;text-align:right;} .ar-sap tr.tot td{font-weight:700;background:#F4F1EA;}
   .ar-sap .ok{color:#2E8B57;font-weight:700;} .ar-sap .bad{color:#C0392B;font-weight:700;}
   #latamBan{position:sticky;top:0;z-index:9998;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 18px;background:#1F4E5F;border-bottom:3px solid #BC9831;color:#fff;font-size:13px;}
+  body.ar-open #latamBan{display:none;}   /* en Compra consolidada LATAM el letrero tapaba el encabezado (25-nov-A) */
   #latamBan span{opacity:.9;} #latamBan button{margin-left:auto;background:#fff;color:#1F4E5F;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font:inherit;font-weight:700;}
   .hm-lat{--gold:#BC9831;--paper:#FBFAF6;--ink:#2F2F2F;--soft:#5E5A52;margin-top:34px;border:1px solid rgba(188,152,49,.55);border-radius:14px;background:rgba(31,78,95,.35);padding:18px 18px 18px;}
   .hm-lat-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;color:#fff;}
@@ -7206,16 +7207,26 @@ function archLatList(){
   for(const f of (state.spFiles || [])){ const m = String(f.name||'').match(re); if(!m || !f.contentBase64) continue;
     let c = null; try{ c = latJsonFromB64(f.contentBase64); }catch(e){}
     if(c && c.final && c.final.at) out.push({ventana:+m[1], final:c.final}); }
+  // Ventanas sin archivo de cierre pero con reporte final (la 4ta): las cifras salen de la hoja Dashboard del reporte
+  const rr = /^REPORTE_FINAL_H1-27-(\d+)V\.xlsx$/i;
+  for(const f of (state.spFiles || [])){ const m = String(f.name||'').match(rr); if(!m || !f.contentBase64 || out.some(x => x.ventana === +m[1])) continue;
+    try{ const wb = XLSX.read(base64ToArrayBuffer(f.contentBase64), {type:'array'}); const ws = wb.Sheets['Dashboard']; if(!ws) continue;
+      const A = XLSX.utils.sheet_to_json(ws, {header:1, raw:true}); const hi = A.findIndex(r => String(r[0]||'').trim() === 'Indicador'); if(hi < 0 || !A[hi+1]) continue;
+      const H = A[hi].map(x => String(x||'').trim()), V = A[hi+1], num = k => { const i = H.indexOf(k); if(i < 0) return null; const n = Number(String(V[i]).replace(/[^0-9.-]/g,'')); return isFinite(n) ? n : null; };
+      const sap = num('SAP Crocs') != null ? num('SAP Crocs') : num('Confirmado');
+      out.push({ventana:+m[1], soloReporte:true, final:{at:f.lastModifiedDateTime || null, resumen:{req:num('Requerido'), enviado:num('Cargado') != null ? num('Cargado') : num('Validado'), sapCrocs:sap}}});
+    }catch(e){ console.warn('LATAM: no se leyó el reporte final', f.name, e); } }
   return out.sort((a,b) => b.ventana - a.ventana);
 }
 function archLatPickHtml(){
   const L = archLatList(), cards = [], cur = VENTANA_OFICIAL;
   for(const w of L){ const R = w.final.resumen || {}, req = R.req || 0, env = R.enviado || 0, sap = R.sapCrocs != null ? R.sapCrocs : (R.sap != null ? R.sap : null);
-    const fr = req && sap != null ? sap / req : null;
+    const fr = req && (sap != null ? sap : (w.soloReporte ? env : null)) != null ? (sap != null ? sap : env) / req : null;
     const go = w.ventana === cur ? 'Ver cierre y reporte →' : (LAT_REP_WEB_VEN[w.ventana] ? 'Ver reporte final →' : 'Descargar reporte final →');
-    cards.push(`<button class="ar-pc fin" data-latpick="${w.ventana}"><span class="pc-h"><b>${ORDINAL_VENTANA[w.ventana]||w.ventana} ventana</b><span class="pc-tag">🔒 Cerrada</span></span>
-      <span class="pc-d">Cerrada el ${new Date(w.final.at).toLocaleString('es-MX',{dateStyle:'long'})} · POs COL · GEN</span>
-      <span class="pc-k"><span>Requerido<b>${fmt(req)}</b></span><span>Enviado<b>${fmt(env)}</b></span><span>SAP Crocs<b>${sap != null ? fmt(sap) : '—'}</b></span></span>
+    const fch = w.final.at ? new Date(w.final.at).toLocaleString('es-MX',{dateStyle:'long'}) : '';
+    cards.push(`<button class="ar-pc fin" data-latpick="${w.ventana}"><span class="pc-h"><b>${ORDINAL_VENTANA[w.ventana]||w.ventana} ventana</b><span class="pc-tag">${w.soloReporte ? '🗄️ Archivada' : '🔒 Cerrada'}</span></span>
+      <span class="pc-d">${w.soloReporte ? 'Reporte final' + (fch ? ' del ' + fch : '') : 'Cerrada el ' + fch} · POs COL · GEN</span>
+      <span class="pc-k"><span>Requerido<b>${fmt(req)}</b></span><span>Enviado<b>${fmt(env)}</b></span><span>${sap != null || !w.soloReporte ? 'SAP Crocs' : 'Cargado'}<b>${sap != null ? fmt(sap) : (w.soloReporte ? fmt(env) : '—')}</b></span></span>
       ${fr != null ? `<span class="pc-fr">Fill rate <i><b data-w="${Math.min(100, fr * 100).toFixed(1)}"></b></i><em>${(Math.round(fr * 1000) / 10).toLocaleString('es-MX')}%</em></span>` : ''}
       <span class="pc-go">${go}</span></button>`); }
   if(!L.some(w => w.ventana === cur)) cards.unshift(`<button class="ar-pc" data-latpick="${cur}"><span class="pc-h"><b>${ORDINAL_VENTANA[cur]} ventana</b><span class="pc-tag cur">● En curso</span></span>
@@ -7224,7 +7235,7 @@ function archLatPickHtml(){
 }
 function archLatGo(n){
   const w = archLatList().find(x => x.ventana === n);
-  if(n === VENTANA_OFICIAL || !w){ archClose(); LAT.tab = w ? 'cie' : 'res'; latOpen(); return; }
+  if(n === VENTANA_OFICIAL || !w){ archClose(); LAT.tab = w && !w.soloReporte ? 'cie' : 'res'; latOpen(); return; }
   if(LAT_REP_WEB_VEN[n]){ window.open(LAT_REP_WEB_VEN[n], '_blank', 'noopener'); return; }
   const f = (state.spFiles || []).find(x => String(x.name||'').toUpperCase() === ('REPORTE_FINAL_H1-27-' + n + 'V.XLSX'));
   if(f && f.contentBase64){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([base64ToArrayBuffer(f.contentBase64)], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
