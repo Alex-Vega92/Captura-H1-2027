@@ -7213,8 +7213,15 @@ function archLatList(){
     try{ const wb = XLSX.read(base64ToArrayBuffer(f.contentBase64), {type:'array'}); const ws = wb.Sheets['Dashboard']; if(!ws) continue;
       const A = XLSX.utils.sheet_to_json(ws, {header:1, raw:true}); const hi = A.findIndex(r => String(r[0]||'').trim() === 'Indicador'); if(hi < 0 || !A[hi+1]) continue;
       const H = A[hi].map(x => String(x||'').trim()), V = A[hi+1], num = k => { const i = H.indexOf(k); if(i < 0) return null; const n = Number(String(V[i]).replace(/[^0-9.-]/g,'')); return isFinite(n) ? n : null; };
-      const sap = num('SAP Crocs') != null ? num('SAP Crocs') : num('Confirmado');
-      out.push({ventana:+m[1], soloReporte:true, final:{at:f.lastModifiedDateTime || null, resumen:{req:num('Requerido'), enviado:num('Cargado') != null ? num('Cargado') : num('Validado'), sapCrocs:sap}}});
+      let sap = num('SAP Crocs') != null ? num('SAP Crocs') : num('Confirmado'), sapAt = null;
+      // Confirmado: el export del SAP de Crocs de esa ventana (SAP_CROCS_H1-27-xV.xlsx), suma de Order quantity
+      const sf = (state.spFiles || []).find(x => String(x.name||'').toUpperCase() === 'SAP_CROCS_H1-27-' + m[1] + 'V.XLSX');
+      if(sf && sf.contentBase64){ try{ const sw = XLSX.read(base64ToArrayBuffer(sf.contentBase64), {type:'array'}); const B = XLSX.utils.sheet_to_json(sw.Sheets[sw.SheetNames[0]], {header:1, raw:true});
+        const hj = B.findIndex(r => r.some(x => String(x||'').trim() === 'Order quantity'));
+        if(hj >= 0){ const qi = B[hj].findIndex(x => String(x||'').trim() === 'Order quantity'); let t = 0;
+          for(const r of B.slice(hj + 1)){ const v = Number(typeof r[qi] === 'string' ? r[qi].replace(/\./g,'').replace(',','.') : r[qi]); if(isFinite(v)) t += v; }
+          if(t > 0){ sap = Math.round(t); sapAt = sf.lastModifiedDateTime || null; } } }catch(e){ console.warn('LATAM: no se leyó el SAP de Crocs', sf.name, e); } }
+      out.push({ventana:+m[1], soloReporte:sap == null, final:{at:sapAt || f.lastModifiedDateTime || null, resumen:{req:num('Requerido'), enviado:num('Cargado') != null ? num('Cargado') : num('Validado'), sapCrocs:sap}}});
     }catch(e){ console.warn('LATAM: no se leyó el reporte final', f.name, e); } }
   return out.sort((a,b) => b.ventana - a.ventana);
 }
